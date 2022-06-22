@@ -19,8 +19,11 @@ const createBlog = async function (req, res) {
 const getAllBlogs = async function (req, res) {
     try {
         let tags = req.query.tags
+        let authorId = req.query.authorId
+        let category = req.query.category
+        let subcategory = req.query.subcategory
         let blogsData = []
-        let blogs = await blogModel.find({ tags:tags })
+        let blogs = await blogModel.find({authorId:authorId, tags:tags,category:category,subcategor:subcategory })
     
         if (!blogs) { res.status(400).send({ status: false, msg: " no such blog exist" }) }
     
