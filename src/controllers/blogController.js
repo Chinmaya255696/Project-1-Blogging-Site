@@ -20,21 +20,23 @@ const getAllBlogs = async function (req, res) {
     try {
         let tags = req.query.tags
         let authorId = req.query.authorId
+        if (!authorId) { res.status(400).send({ status: false, msg: "Please input authorId!" }) }
         let category = req.query.category
+        if (!category) { res.status(400).send({ status: false, msg: "Please input category!" }) }
         let subcategory = req.query.subcategory
         let blogsData = []
-        let blogs = await blogModel.find({authorId:authorId, tags:tags,category:category,subcategor:subcategory })
-    
-        if (!blogs) { res.status(400).send({ status: false, msg: " no such blog exist" }) }
-    
-        blogs.filter(n => {
-          if (n.isDeleted === false && n.isPublished === true)
-            blogsData.push(n)
+        let blogs = await blogModel.find({ $or: [{ authorId: authorId }, { tags: tags }, { category: category }, { subcategor: subcategory }] })
+
+        if (!blogs) { res.status(400).send({ status: false, msg: "BAD REQUEST!" }) }
+
+        blogs.filter(x => {
+            if (x.isDeleted === false && x.isPublished === true)
+                blogsData.push(x)
         })
         return res.status(200).send({ data: blogsData })
-      }
-      catch (err) { res.status(500).send({ status: false, msg: err.message }) }
     }
+    catch (err) { res.status(500).send({ status: false, msg: err.message }) }
+}
 
 const updateBlog = async function (req, res) {
 
@@ -47,7 +49,7 @@ const updateBlog = async function (req, res) {
 
         else {
             let data = req.body;
-            if (!data) { return res.status(400).send({ msg: "BAD REQUEST" }) }
+            if (!data) { return res.status(400).send({ msg: "BAD REQUEST!" }) }
             if (!data.tag && !data.subcategory) { return res.status(404).send({ status: false, msg: "Please input both tag and subcategory" }) }
             let uptoDateBlog = await blogModel.findOneAndUpdate({ _id: blogId }, data, { new: true });
             let updated = await blogModel.findOneAndUpdate({ _id: blogId }, { $set: { isPublished: true, publishedAt: new Date() } }, { new: true })
@@ -85,12 +87,13 @@ const deleteBlogsByQuery = async function (req, res) {
             { new: true }
         )
         if (!data) {
-            return res.status(400).send({ status: false, msg: "BAD REQUEST" })}
+            return res.status(400).send({ status: false, msg: "BAD REQUEST" })
+        }
 
-        if (!data.authorId)  {
+        if (!data.authorId) {
             return res.status(404).send({ status: false, msg: "authorId is required" })
         }
-        
+
         if (savedData.modifiedCount === 0) {
             return res.status(404).send({ status: false, msg: "DATA NOT FOUND" })
         }
