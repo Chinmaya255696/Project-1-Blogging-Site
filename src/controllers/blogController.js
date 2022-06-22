@@ -15,10 +15,5 @@ const createBlog = async function (req, res) {
     }
 }
 
-const getAllBlogs = async function (req, res) {
-    let allBooks = await bookModel.find()
-    res.send({ msg: allBooks })
-}
 
 module.exports.createBlog = createBlog
-module.exports.getAllBlogs = getAllBlogs
