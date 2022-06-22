@@ -18,28 +18,20 @@ const createBlog = async function (req, res) {
 
 const getAllBlogs = async function (req, res) {
     try {
-        let data = req.query
-        let savedData = await blogModel.find({ $and: [{ isDeleted: false }, { isPublished: true }] })
-        if (Object.keys(data).length != 0) {
-            return res.status(200).send({ status: true, data: savedData });
-        }
-        let findByQuery = await blogModel.find({ $or: [{ subcategory: req.query.subcategory }, { authorId: req.query.authorId }, { tags: req.query.tags }, { category: req.query.category }] })
-        let final = []
-        if (findByQuery.length > 0) {
-            for (let i of findByQuery) {
-                if (i.isDeleted == false && i.isPublished == true) {
-                    final.push(i)
-                }
-            }
-        }
-        return res.status(200).send({ status: true, msg: final })
+        let tags = req.query.tags
+        let blogsData = []
+        let blogs = await blogModel.find({ tags:tags })
+    
+        if (!blogs) { res.status(400).send({ status: false, msg: " no such blog exist" }) }
+    
+        blogs.filter(n => {
+          if (n.isDeleted === false && n.isPublished === true)
+            blogsData.push(n)
+        })
+        return res.status(200).send({ data: blogsData })
+      }
+      catch (err) { res.status(500).send({ status: false, msg: err.message }) }
     }
-
-    catch (err) {
-        return res.status(500).send({ status: false, msg: err.message })
-
-    }
-}
 
 const updateBlog = async function (req, res) {
 
@@ -47,7 +39,7 @@ const updateBlog = async function (req, res) {
         let blogId = req.params.blogId
         let blogvalid = await blogModel.findOne({ _id: blogId, isDeleted: false });
         if (!blogvalid) {
-            return res.status(404).send({ status: false, msg: "the blog has already been deleted from database" });
+            return res.status(404).send({ status: false, msg: "BLOG NOT FOUND!" });
         }
 
         else {
