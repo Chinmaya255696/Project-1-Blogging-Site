@@ -5,13 +5,13 @@ const createAuthor = async function (req, res) {
         let data = req.body
         if (Object.keys(data).length != 0) {
             let savedData = await authorModel.create(data)
-            res.status(201).send({ msg: savedData })
+            res.status(201).send({status: true, data: savedData })
         }
-        else res.status(400).send({ msg: "BAD REQUEST" })
+        else res.status(400).send({status: false, data: "BAD REQUEST" })
     }
     catch (err) {
         console.log("This is the error:", err.message)
-        res.status(500).send({ msg: "Error", error: err.message })
+        res.status(500).send({ status: false, msg: err.message })
     }
 }
 

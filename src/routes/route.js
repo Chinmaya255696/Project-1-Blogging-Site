@@ -7,6 +7,16 @@ router.post("/authors", authorController.createAuthor)
 
 router.post("/blogs", blogController.createBlog)
 
+router.get("/blogs", blogController.getAllBlogs)
+
+router.put("/blogs/:blogId", blogController.updateBlog)
+
+router.delete("/blogs/:blogId", blogController.deleteById)
+
+router.delete("/blogs", blogController.deleteBlogsByQuery)
+
+
+
 
 
 
