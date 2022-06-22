@@ -1,9 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const bookController = require("../controllers/bookController")
+const authorController = require("../controllers/authorController")
+const blogController =  require("../controllers/blogController")
 
-router.post("/createbookData", bookController.createbookData)
+router.post("/authors", authorController.createAuthor)
 
-router.get("/getbookData", bookController.getbookData)
+router.post("/blogs", blogController.createBlog)
+
+router.get("/blogs" , blogController.getAllBlogs)
+
+
 
 module.exports = router;
