@@ -106,4 +106,6 @@ module.exports.updateBlog = updateBlog
 module.exports.deleteById = deleteById
 module.exports.deleteBlogsByQuery = deleteBlogsByQuery
 
+//phase 1 completed
+
 
