@@ -28,7 +28,7 @@ const authorise = function (req, res, next) {
     let decodedToken = jwt.verify(token, "group19-project1");
     let userToBeModified = req.params.authorId
     let userLoggedIn = decodedToken.authorId
-    if (userToBeModified != userLoggedIn) return res.send({ status: false, msg: 'User logged is not allowed to modify the requested users data' })
+    if (userToBeModified != userLoggedIn) return res.status(400).send({ status: false, msg: 'User logged is not allowed to modify the requested users data' })
 
     next()
 }

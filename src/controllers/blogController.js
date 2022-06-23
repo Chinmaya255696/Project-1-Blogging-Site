@@ -88,7 +88,7 @@ const updateBlog = async function (req, res) {
             return res.status(404).send({ status: false, msg: "BLOG NOT FOUND!" });
         }
         if (blogvalid.length === 0) {
-            return res.status(404).send({ status: false, msg: "BLOG IS EMPTY!" });
+            return res.status(404).send({ status: false, msg: "DATA EMPTY!" });
         }
 
         else {

@@ -6,16 +6,8 @@ const validateAuthor = [
         .not()
         .isEmpty()
         .withMessage("First name or Last name is missing!")
-        .isLength({ min: 2, max: 20 })
-        .withMessage("First name or Last name must be 2 to 20 characters long!"),
-
-    // check("lname")
-    //     .trim()
-    //     .not()
-    //     .isEmpty()
-    //     .withMessage("Last name is missing!")
-    //     .isLength({ min: 2, max: 20 })
-    //     .withMessage("Name must be 2 to 20 characters long!"),
+        .isLength({ min: 2, max: 30 })
+        .withMessage("First name or Last name must be 2 to 30 characters long!"),
 
     check("title")
     .trim()
