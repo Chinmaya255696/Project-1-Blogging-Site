@@ -13,7 +13,7 @@ const validateBlog = [
         .trim()
         .not()
         .isEmpty()
-        .withMessage("Title is missing!")
+        .withMessage("Body is missing!")
         .isLength({ min: 5, max: 10000 })
         .withMessage("Blog content must be 5 to 10000 characters long!"),
 ]
