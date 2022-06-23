@@ -2,13 +2,16 @@ const express = require('express');
 const router = express.Router();
 const authorController = require("../controllers/authorController")
 const blogController = require("../controllers/blogController")
-const middleware = require("../middleware/middleware")
+const { validateAuthor, validate } = require("../middleware/validator")
+const { validateBlog, validate2 } = require("../middleware/validateBlog")
+const middleware = require("../middleware/auth");
 
-router.post("/authors", authorController.createAuthor)
 
-router.post("/blogs", middleware.authenticate, blogController.createBlog)
+router.post("/authors", validateAuthor, validate, authorController.createAuthor)
 
 router.post("/login", authorController.loginAuthor)
+
+router.post("/blogs", validateBlog, validate2, middleware.authenticate, blogController.createBlog)
 
 router.get("/getAllBlogs", middleware.authenticate, blogController.getAllBlogs)
 

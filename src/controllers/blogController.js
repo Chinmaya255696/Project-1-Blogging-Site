@@ -4,6 +4,10 @@ const blogModel = require("../models/blogModel")
 const createBlog = async function (req, res) {
     try {
         let data = req.body
+        if (!data.authorId) {
+            return res.status(404).send({ status: false, msg: "authorId is required" })
+        }
+
         if (Object.keys(data).length != 0) {
             let savedData = await blogModel.create(data)
             return res.status(201).send({ msg: savedData })
