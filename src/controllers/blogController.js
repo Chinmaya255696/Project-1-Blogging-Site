@@ -4,8 +4,24 @@ const blogModel = require("../models/blogModel")
 const createBlog = async function (req, res) {
     try {
         let data = req.body
+
         if (!data.authorId) {
-            return res.status(404).send({ status: false, msg: "authorId is required" })
+            return res.status(404).send({ status: false, msg: "authorId is required!" })
+        }
+        if (!data.authorId.length === 0) {
+            return res.status(404).send({ status: false, msg: "authorId is empty!" })
+        }
+        if (!data.tags.length === 0) {
+            return res.status(404).send({ status: false, msg: "tags are empty!" })
+        }
+        if (!data.category) {
+            return res.status(404).send({ status: false, msg: "category is required!" })
+        }
+        if (!data.category.length === 0) {
+            return res.status(404).send({ status: false, msg: "category is empty!" })
+        }
+        if (!data.subcategory.length === 0) {
+            return res.status(404).send({ status: false, msg: "subcategory is empty!" })
         }
 
         if (Object.keys(data).length != 0) {
@@ -23,12 +39,27 @@ const createBlog = async function (req, res) {
 const getAllBlogs = async function (req, res) {
     try {
         let tags = req.query.tags
+
+        if (tags.length === 0) { return res.status(404).send({ status: false, msg: "tags are empty!" }) }
+
         let authorId = req.query.authorId
+
         if (!authorId) { res.status(400).send({ status: false, msg: "Please input authorId!" }) }
+
+        if (authorId.length === 0) { res.status(400).send({ status: false, msg: "authorId is empty!" }) }
+
         let category = req.query.category
+
         if (!category) { res.status(400).send({ status: false, msg: "Please input category!" }) }
+
+        if (category.length === 0) { return res.status(404).send({ status: false, msg: "category is empty!" }) }
+
         let subcategory = req.query.subcategory
+
+        if (subcategory.length === 0) { return res.status(404).send({ status: false, msg: "subcategory is empty!" }) }
+
         let blogsData = []
+
         let blogs = await blogModel.find({ $or: [{ authorId: authorId }, { tags: tags }, { category: category }, { subcategor: subcategory }] })
 
         if (!blogs) { res.status(400).send({ status: false, msg: "BAD REQUEST!" }) }
@@ -46,17 +77,33 @@ const updateBlog = async function (req, res) {
 
     try {
         let blogId = req.params.blogId
+
+        if (!blogId) { res.status(400).send({ status: false, msg: "Please input blogId!" }) };
+
+        if (blogId.length === 0) { res.status(400).send({ status: false, msg: "blogId is empty!" }) };
+
         let blogvalid = await blogModel.findOne({ _id: blogId, isDeleted: false });
+
         if (!blogvalid) {
             return res.status(404).send({ status: false, msg: "BLOG NOT FOUND!" });
+        }
+        if (blogvalid.length === 0) {
+            return res.status(404).send({ status: false, msg: "BLOG IS EMPTY!" });
         }
 
         else {
             let data = req.body;
+
             if (!data) { return res.status(400).send({ msg: "BAD REQUEST!" }) }
+
             if (!data.tag && !data.subcategory) { return res.status(404).send({ status: false, msg: "Please input both tag and subcategory" }) }
+
+            if (data.tag.length === 0 || data.subcategory.length === 0) { return res.status(404).send({ status: false, msg: "Either tag or subcategory is empty!" }) }
+
             let uptoDateBlog = await blogModel.findOneAndUpdate({ _id: blogId }, data, { new: true });
+
             let updated = await blogModel.findOneAndUpdate({ _id: blogId }, { $set: { isPublished: true, publishedAt: new Date() } }, { new: true })
+
             return res.status(200).send({ status: true, data: updated });
         }
 
@@ -73,7 +120,10 @@ const deleteById = async function (req, res) {
         if (!blogId) {
             return res.status(404).send({ status: false, msg: "DATA NOT FOUND OR DATA ALREADY DELETED" })
         }
+        if (blogId.length === 0) { res.status(400).send({ status: false, msg: "blogId is empty!" }) };
+
         let savedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true }, { new: true })
+
         return res.status(200).send({ status: true, data: savedData })
     }
     catch (error) {
@@ -98,12 +148,35 @@ const deleteBlogsByQuery = async function (req, res) {
             return res.status(404).send({ status: false, msg: "authorId is required" })
         }
 
+        if (data.authorId.length === 0) {
+            res.status(400).send({ status: false, msg: "authorId is empty!" })
+        }
+
+        if (!data.category) {
+            return res.status(404).send({ status: false, msg: "category is required" })
+        }
+
+        if (data.category.length === 0) {
+            res.status(400).send({ status: false, msg: "category is empty!" })
+        }
+
+        if (data.tags.length === 0) {
+            res.status(400).send({ status: false, msg: "tags is empty!" })
+        }
+
+        if (data.subcategory.length === 0) {
+            res.status(400).send({ status: false, msg: "subcategory is empty!" })
+        }
+
+        if (data.isPublished.length === 0) {
+            res.status(400).send({ status: false, msg: "isPublished is empty!" })
+        }
+
         if (savedData.modifiedCount === 0) {
             return res.status(404).send({ status: false, msg: "DATA NOT FOUND" })
         }
         else {
             return res.status(200).send({ status: true, data: savedData })
-
         }
 
     } catch (error) {

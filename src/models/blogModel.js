@@ -22,7 +22,6 @@ const blogSchema = new mongoose.Schema({
     category: {
         type: [String],
         required: true,
-        enum: ["technology", "entertainment", "lifestyle", "food", "fashion"]
     },
     subcategory: {
         type: [String]
@@ -35,6 +34,7 @@ const blogSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
+
 
 }, { timestamps: true });
 

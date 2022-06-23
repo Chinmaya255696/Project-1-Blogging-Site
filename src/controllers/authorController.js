@@ -22,10 +22,10 @@ const loginAuthor = async function (req, res) {
     try {
         let email = req.body.email
         let password = req.body.password
-        //    if (email === 0 && password === 0) return res.status(400).send({ status: false, msg: "Both email and password is required!" })
+           if (email.length === 0 || password.length === 0) return res.status(400).send({ status: false, msg: "Both email and password is required!" })
         if (!email && !password) return res.status(404).send({ status: false, msg: "DATA NOT FOUND!" })
 
-        let author = await authorModel.findOne({ email: email, passwrod: password })
+        let author = await authorModel.findOne({ email: email, password: password })
         if (!author) { return res.status(400).send({ status: false, msg: "email or the password is not correct" }) }
 
         let token = jwt.sign(
@@ -36,7 +36,7 @@ const loginAuthor = async function (req, res) {
             },
             "group19-project1"
         )
-        res.status(201).send({ status: true, data: token })
+        return res.status(201).send({ status: true, data: token })
     }
     catch (err) {
         console.log("This is the error:", err.message)

@@ -35,25 +35,6 @@ const validateAuthor = [
         .withMessage("Password must be 5 to 20 characters long!")
 ];
 
-
-const validateBlog = [
-    check("title")
-        .trim()
-        .not()
-        .isEmpty()
-        .withMessage("Title is missing!")
-        .isLength({ min: 4, max: 25 })
-        .withMessage("Title name must be 4 to 25 characters long!"),
-
-        check("body")
-        .trim()
-        .not()
-        .isEmpty()
-        .withMessage("Title is missing!")
-        .isLength({ min: 5, max: 10000 })
-        .withMessage("Blog content must be 5 to 100000 characters long!"),  
-]
-
 const validate = function (req, res, next) {
     const error = validationResult(req).array()
     if (!error.length) return next()
