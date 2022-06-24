@@ -10,21 +10,27 @@ const validateAuthor = [
         .withMessage("First name or Last name must be 2 to 30 characters long!"),
 
     check("title")
-    .trim()
-    .not()
-    .isEmpty()
-    .withMessage("Title is missing!")
-    .isLength({ min: 2, max: 4 })
-    .withMessage("Title name must be 2 to 4 characters long!"),
-
-    check("email").normalizeEmail().isEmail().withMessage("Email is invalid!"),
-
-    check("password")
+        .isIn(["Mr", "Mrs", "Miss"])
+        .withMessage("Invalid Title!")
         .trim()
         .not()
         .isEmpty()
-        .withMessage("Password is missing!").isLength({ min: 5, max: 20 })
-        .withMessage("Password must be 5 to 20 characters long!")
+        .withMessage("Title is missing!")
+        .isLength({ min: 2, max: 4 })
+        .withMessage("Title name must be 2 to 4 characters long!"),
+     
+    check("email")
+        .normalizeEmail()
+        .isEmail()
+        .withMessage("Email is invalid!"),
+
+    // check("password")
+    //     .trim()
+    //     .not()
+    //     .isEmpty()
+    //     .withMessage("Password is missing!")
+    //     .isLength({ min: 5, max: 20 })
+    //     .withMessage("Password must be 5 to 20 characters long!")
 ];
 
 const validate = function (req, res, next) {

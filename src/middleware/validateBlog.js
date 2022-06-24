@@ -17,46 +17,7 @@ const validateBlog = [
         .isLength({ min: 5, max: 10000 })
         .withMessage("Blog content must be 5 to 10000 characters long!"),
 
-    check("tags")
-        .trim()
-        .not()
-        .isEmpty()
-        .withMessage("tag is missing! or tags are missing!")
-        .isLength({ min: 3, max: 100 })
-        .withMessage("Please enter proper tags!"),
-
-    check("category")
-        .trim()
-        .not()
-        .isEmpty()
-        .withMessage("category is missing!")
-        .isLength({ min: 3, max: 100 })
-        .withMessage("Please enter valid category!"),
-
-    check("subcategory")
-        .trim()
-        .not()
-        .isEmpty()
-        .withMessage("subcategory is missing!")
-        .isLength({ min: 3, max: 100 })
-        .withMessage("Please enter valid subcategory!"),
-
-    check("isDeleted")
-        .trim()
-        .not()
-        .isEmpty()
-        .withMessage("isDeleted is missing!")
-        .isLength({ min: 4, max: 4 })
-        .withMessage("Please enter valid value of isDeleted!"),
-
-    check("isPublised")
-        .trim()
-        .not()
-        .isEmpty()
-        .withMessage("isPublised is missing!")
-        .isLength({ min: 4, max: 4 })
-        .withMessage("Please enter valid value of isPublised!"),
-
+   
 
 ]
 

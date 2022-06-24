@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId
+const validator = require("validator")
 
 
 const blogSchema = new mongoose.Schema({
@@ -28,7 +29,12 @@ const blogSchema = new mongoose.Schema({
     },
     isDeleted: {
         type: Boolean,
-        default: false
+        default: false,
+        // validate(value) {
+        //     if (!validator.isBoolean(value)) {
+        //         throw new Error("Invalid Response");
+        //     }
+        // }
     },
     isPublished: {
         type: Boolean,
