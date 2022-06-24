@@ -1,9 +1,9 @@
 const blogModel = require("../models/blogModel")
 const mongoose = require('mongoose');
-const isValidObjectId=function(objectId){ return mongoose.Types.ObjectId.isValid(objectId)}
+const isValidObjectId = function (objectId) { return mongoose.Types.ObjectId.isValid(objectId) }
 
-const objectValue = function (value){
-    if (typeof value === "undefined" || value === null ) return false
+const objectValue = function (value) {
+    if (typeof value === "undefined" || value === null) return false
     if (typeof value === "String" && value.trim().length === 0) return false
     return true
 }
@@ -60,32 +60,32 @@ const getAllBlogs = async function (req, res) {
     try {
         let tags = req.query.tags
 
-      if (tags.length === 0) { return res.status(404).send({ status: false, msg: "tags are empty!" }) }
+        if (tags.length === 0) { return res.status(404).send({ status: false, msg: "tags are empty!" }) }
 
-//<==========when we are trying fetch data without tags...its showing error?==========================================>//  
- //<======================why .length is making the presence compulsory ?================================================>//
+        //<==========when we are trying fetch data without tags...its showing error?==========================================>//  
+        //<======================why .length is making the presence compulsory ?================================================>//
 
         let authorId = req.query.authorId
 
         if (!authorId) { res.status(400).send({ status: false, msg: "Please input authorId!" }) }
 
-        if (authorId.length === 0) { res.status(404).send({ status: false, msg: "authorId is empty!" }) }
+        if (authorId.length === 0) { res.status(400).send({ status: false, msg: "authorId is empty!" }) }
 
         let category = req.query.category
 
         if (!category) { res.status(400).send({ status: false, msg: "Please input category!" }) }
 
-       // if (category.length === 0) { return res.status(404).send({ status: false, msg: "category is empty!" }) }
+        // if (category.length === 0) { return res.status(404).send({ status: false, msg: "category is empty!" }) }
 
         let subcategory = req.query.subcategory
 
-       // if (subcategory.length === 0) { return res.status(404).send({ status: false, msg: "subcategory is empty!" }) }
+        // if (subcategory.length === 0) { return res.status(404).send({ status: false, msg: "subcategory is empty!" }) }
 
         let blogsData = []
 
         let blogs = await blogModel.find({ $or: [{ authorId: authorId }, { tags: tags }, { category: category }, { subcategory: subcategory }] })
 
-        if (!blogs) { res.status(400).send({ status: false, msg: "BAD REQUEST!" }) }
+        if (!blogs) { res.status(404).send({ status: false, msg: "DATA NOT FOUND!" }) }
 
         blogs.filter(x => {
             if (x.isDeleted === false && x.isPublished === true)
@@ -102,26 +102,26 @@ const updateBlog = async function (req, res) {
         let blogId = req.params.blogId
         let authorToken = req.authorId
         if (!blogId) { res.status(400).send({ status: false, msg: "Please input blogId!" }) };
-        if (!isValidObjectId(blogId)) return res.status(400).send({ status: false, msg:"blogId is invalid!" })
-    
+        if (!isValidObjectId(blogId)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
+
         let blogvalid = await blogModel.findOne({ _id: blogId, isDeleted: false });
 
         if (!blogvalid) {
             return res.status(404).send({ status: false, msg: "BLOG NOT FOUND!" });
         }
 
-        if(blogvalid.authorId.toString()!==authorToken){ return res.status(401).send({status:false,message:"Unauthorised access"}) }
+        if (blogvalid.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
 
-            let data = req.body;
+        let data = req.body;
 
-            if (!data) { return res.status(400).send({ msg: "Please provide something to update!" }) }
+        if (!data) { return res.status(400).send({ msg: "Please provide something to update!" }) }
 
-            let uptoDateBlog = await blogModel.findOneAndUpdate({ _id: blogId }, data, { new: true });
+        let uptoDateBlog = await blogModel.findOneAndUpdate({ _id: blogId }, data, { new: true });
 
-            let updated = await blogModel.findOneAndUpdate({ _id: blogId }, { $set: { isPublished: true, publishedAt: new Date() } }, { new: true })
+        let updated = await blogModel.findOneAndUpdate({ _id: blogId }, { $set: { isPublished: true, publishedAt: new Date() } }, { new: true })
 
-            return res.status(200).send({ status: true, data: updated });
-        
+        return res.status(200).send({ status: true, data: updated });
+
 
     } catch (err) {
         console.log("This is the error:", err.message)
@@ -139,7 +139,7 @@ const deleteById = async function (req, res) {
         }
         // if (data != blogId) { res.status(400).send({ status: false, msg: "blogId is invalid!" }) };
 
-        if(blogId.authorId.toString()!==authorToken){ return res.status(401).send({status:false,message:"Unauthorised access"}) }
+        if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
 
         let savedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true }, { new: true })
 
@@ -161,15 +161,15 @@ const deleteBlogsByQuery = async function (req, res) {
             { new: true }
         )
         if (!data) {
-            return res.status(400).send({ status: false, msg: "BAD REQUEST"})
+            return res.status(400).send({ status: false, msg: "BAD REQUEST" })
         }
 
         if (!data.authorId) {
-            return res.status(404).send({ status: false, msg: "authorId is required"})
+            return res.status(404).send({ status: false, msg: "authorId is required" })
         }
 
         if (data.authorId.length === 0) {
-            res.status(400).send({ status: false, msg: "authorId is empty!"})
+            res.status(400).send({ status: false, msg: "authorId is empty!" })
         }
 
         if (!data.category) {
@@ -196,7 +196,7 @@ const deleteBlogsByQuery = async function (req, res) {
             return res.status(404).send({ status: false, msg: "DATA NOT FOUND" })
         }
 
-        if(data.authorId.toString()!==authorToken){ return res.status(401).send({status:false,message:"Unauthorised access"}) }
+        if (data.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
 
         else {
             return res.status(200).send({ status: true, data: savedData })

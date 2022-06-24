@@ -16,8 +16,6 @@ const authenticate = function (req, res, next) {
             req.authorId = decodedToken.authorId
             next()
         }
-
-
     }
     catch (err) {
         console.log("This is the error:", err.message)
@@ -25,24 +23,24 @@ const authenticate = function (req, res, next) {
     }
 }
 
-//====================================================2nd Middleware=====================================================================//
+// //====================================================2nd Middleware=====================================================================//
 
-const authorise = function (req, res, next) {
-    try {
-        let token = req.headers["x-api-key"];
-        let decodedToken = jwt.verify(token, "group19-project1");
-        let userToBeModified = req.params.authorId
-        let userLoggedIn = decodedToken.authorId
-        if (userToBeModified != userLoggedIn) return res.status(400).send({ status: false, msg: "Author logged is not allowed to modify the requested author's blog data" })
+// const authorise = function (req, res, next) {
+//     try {
+//         let token = req.headers["x-api-key"];
+//         let decodedToken = jwt.verify(token, "group19-project1");
+//         let userToBeModified = req.params.authorId
+//         let userLoggedIn = decodedToken.authorId
+//         if (userToBeModified != userLoggedIn) return res.status(400).send({ status: false, msg: "Author logged is not allowed to modify the requested author's blog data" })
 
-        next()
-    }
-    catch (err) {
-        console.log("This is the error:", err.message)
-        return res.status(500).send({ status: false, msg: err.message })
-    }
-}
+//         next()
+//     }
+//     catch (err) {
+//         console.log("This is the error:", err.message)
+//         return res.status(500).send({ status: false, msg: err.message })
+//     }
+// }
 
-//=========================================================================================================================================//
+// //=========================================================================================================================================//
 
-module.exports = { authenticate, authorise }
+module.exports = { authenticate }

@@ -24,13 +24,13 @@ const validateAuthor = [
         .isEmail()
         .withMessage("Email is invalid!"),
 
-    // check("password")
-    //     .trim()
-    //     .not()
-    //     .isEmpty()
-    //     .withMessage("Password is missing!")
-    //     .isLength({ min: 5, max: 20 })
-    //     .withMessage("Password must be 5 to 20 characters long!")
+    check("password")
+        .trim()
+        .not()
+        .isEmpty()
+        .withMessage("Password is missing!")
+        .isLength({ min: 5, max: 20 })
+        .withMessage("Password must be 5 to 20 characters long!")
 ];
 
 const validate = function (req, res, next) {
