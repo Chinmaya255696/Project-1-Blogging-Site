@@ -139,7 +139,7 @@ const deleteById = async function (req, res) {
         }
         // if (data != blogId) { res.status(400).send({ status: false, msg: "blogId is invalid!" }) };
 
-        if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
+        if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access!" }) }
 
         let savedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true }, { new: true })
 
