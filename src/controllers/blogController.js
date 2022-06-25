@@ -4,7 +4,7 @@ const isValidObjectId = function (objectId) { return mongoose.Types.ObjectId.isV
 
 const objectValue = function (value) {
     if (typeof value === "undefined" || value === null) return false
-    if (typeof value === "String" && value.trim().length === 0) return false
+    if (typeof value === "string" && trim().length === 0) return false
     return true
 }
 
@@ -15,21 +15,21 @@ const createBlog = async function (req, res) {
         if (!data.authorId) {
             return res.status(404).send({ status: false, msg: "authorId is required!" })
         }
-        if (!data.authorId.length === 0) {
-            return res.status(404).send({ status: false, msg: "authorId is empty!" })
+        if (!isValidObjectId(data.authorId)) {
+            return res.status(400).send({ status: false, msg: "authorId is invalid!" })
         }
-        if (objectValue(data.tags)) {
-            return res.status(404).send({ status: false, msg: "tags are empty!" })
-        }
-        if (!data.category) {
-            return res.status(404).send({ status: false, msg: "category is required!" })
-        }
-        if (!data.category.length === 0) {
-            return res.status(404).send({ status: false, msg: "category is empty!" })
-        }
-        if (!data.subcategory.length === 0) {
-            return res.status(404).send({ status: false, msg: "subcategory is empty!" })
-        }
+        // else if (!objectValue(data.tags)) {
+        //     return res.status(404).send({ status: false, msg: "tags are empty!" })
+        // }
+        // if (Object.keys(data.category).length === 0) {
+        //     return res.status(404).send({ status: false, msg: "category is required!" })
+        // }
+        // else if (!objectValue(data.category)) {
+        //     return res.status(404).send({ status: false, msg: "category is empty!" })
+        // }
+        // else if (!objectValue(data.subcategory)) {
+        //     return res.status(404).send({ status: false, msg: "subcategory is empty!" })
+        // }
 
         if (Object.keys(data).length != 0) {
             let savedData = await blogModel.create(data)
@@ -42,6 +42,41 @@ const createBlog = async function (req, res) {
         return res.status(500).send({ msg: "Error", error: err.message })
     }
 }
+
+// const createBlog = async function (req, res) {
+
+//     try {
+//         let data = req.body
+
+//         if (data.authorId) {
+//             if (isValidObjectId(data.authorId)) {
+//                 if (objectValue(data.tags)) {
+//                     if (data.category) {
+//                         if (objectValue(data.category)) {
+//                             if (objectValue(data.subcategory)) {
+//                                 if (Object.keys(data).length != 0) {
+//                                     let savedData = await blogModel.create(data)
+//                                     return res.status(201).send({ msg: savedData })
+//                                 }
+//                                 else return res.status(400).send({ msg: "BAD REQUEST" })
+//                             }
+//                             else return res.status(404).send({ status: false, msg: "subcategory is empty!" })
+//                         }
+//                         else return res.status(404).send({ status: false, msg: "category is empty!" })
+//                     }
+//                     else return res.status(404).send({ status: false, msg: "category is required!" })
+//                 }
+//                 else return res.status(404).send({ status: false, msg: "tags are empty!" })
+//             }
+//             else return res.status(400).send({ status: false, msg: "authorId is invalid!" })
+//         }
+//         else res.status(400).send({ status: false, msg: "authorId is required!" })
+//     }
+//     catch (err) {
+//         console.log("This is the error:", err.message)
+//         return res.status(500).send({ msg: "Error", error: err.message })
+//     }
+// }
 
 //<=======why the express validator is not reading the data stored in array of strings...to be precise it is only returning one input i.e ignoring the other inputs....?================================>//
 
@@ -62,12 +97,16 @@ const getAllBlogs = async function (req, res) {
 
         if (tags.length === 0) { return res.status(404).send({ status: false, msg: "tags are empty!" }) }
 
+        // if ( Object.keys(tags.tags).length === 0) { return res.status(404).send({ status: false, msg: "tags are empty!" }) }
+
         //<==========when we are trying fetch data without tags...its showing error?==========================================>//  
         //<======================why .length is making the presence compulsory ?================================================>//
 
         let authorId = req.query.authorId
 
-        if (!authorId) { res.status(400).send({ status: false, msg: "Please input authorId!" }) }
+        if (!isValidObjectId(authorId)) {
+            return res.status(400).send({ status: false, msg: "authorId is invalid!" })
+        }
 
         if (authorId.length === 0) { res.status(400).send({ status: false, msg: "authorId is empty!" }) }
 
@@ -79,13 +118,15 @@ const getAllBlogs = async function (req, res) {
 
         let subcategory = req.query.subcategory
 
-        // if (subcategory.length === 0) { return res.status(404).send({ status: false, msg: "subcategory is empty!" }) }
+        if (subcategory.length === 0) { return res.status(404).send({ status: false, msg: "subcategory is empty!" }) }
 
         let blogsData = []
 
         let blogs = await blogModel.find({ $or: [{ authorId: authorId }, { tags: tags }, { category: category }, { subcategory: subcategory }] })
 
-        if (!blogs) { res.status(404).send({ status: false, msg: "DATA NOT FOUND!" }) }
+        // if (!blogs) { res.status(404).send({ status: false, msg: "DATA NOT FOUND!" }) }
+
+
 
         blogs.filter(x => {
             if (x.isDeleted === false && x.isPublished === true)
@@ -101,20 +142,24 @@ const updateBlog = async function (req, res) {
     try {
         let blogId = req.params.blogId
         let authorToken = req.authorId
-        if (!blogId) { res.status(400).send({ status: false, msg: "Please input blogId!" }) };
+        // if (!blogId) { res.status(400).send({ status: false, msg: "Please input blogId!" }) };
         if (!isValidObjectId(blogId)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
 
         let blogvalid = await blogModel.findOne({ _id: blogId, isDeleted: false });
 
         if (!blogvalid) {
-            return res.status(404).send({ status: false, msg: "BLOG NOT FOUND!" });
+            return res.status(404).send({ status: false, msg: "BLOG NOT FOUND OR BLOG ALREADY DELETED!" });
         }
 
         if (blogvalid.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
 
         let data = req.body;
 
-        if (!data) { return res.status(400).send({ msg: "Please provide something to update!" }) }
+        if (!data.length) { return res.status(400).send({ msg: "Please provide something to update!" }) }
+
+        if (!data.tags && !data.subcategory) { return res.status(400).send({ msg: "Please input both tags and subcategory! " }) }
+
+        // if (!data.subcategory) { return res.status(400).send({ msg: "Please input subcategory!" }) }
 
         let uptoDateBlog = await blogModel.findOneAndUpdate({ _id: blogId }, data, { new: true });
 
@@ -132,10 +177,11 @@ const updateBlog = async function (req, res) {
 const deleteById = async function (req, res) {
     try {
         let data = req.params.blogId
+        if (!isValidObjectId(data)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
         let authorToken = req.authorId
         let blogId = await blogModel.findOne({ _id: data, isDeleted: false })
         if (!blogId) {
-            return res.status(404).send({ status: false, msg: "DATA NOT FOUND OR DATA ALREADY DELETED!" })
+            return res.status(404).send({ status: false, msg: "BLOG NOT FOUND OR BLOG ALREADY DELETED!" })
         }
         // if (data != blogId) { res.status(400).send({ status: false, msg: "blogId is invalid!" }) };
 

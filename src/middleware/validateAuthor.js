@@ -1,13 +1,27 @@
 const { check, validationResult } = require("express-validator")
 
 const validateAuthor = [
-    check("fname" && "lname")
+    check("fname" || "lname" || "title" || "email")
         .trim()
         .not()
         .isEmpty()
-        .withMessage("First name or Last name is missing!")
+        .withMessage("Please input fname, lname, title and email!"),
+
+    check("fname")
+        .trim()
+        .not()
+        .isEmpty()
+        .withMessage("First name is missing!")
         .isLength({ min: 2, max: 30 })
-        .withMessage("First name or Last name must be 2 to 30 characters long!"),
+        .withMessage("First name must be 2 to 30 characters long!"),
+
+    check("lname")
+        .trim()
+        .not()
+        .isEmpty()
+        .withMessage("Last name is missing!")
+        .isLength({ min: 2, max: 30 })
+        .withMessage("Last name must be 2 to 30 characters long!"),
 
     check("title")
         .isIn(["Mr", "Mrs", "Miss"])
@@ -18,7 +32,7 @@ const validateAuthor = [
         .withMessage("Title is missing!")
         .isLength({ min: 2, max: 4 })
         .withMessage("Title name must be 2 to 4 characters long!"),
-     
+
     check("email")
         .normalizeEmail()
         .isEmail()
