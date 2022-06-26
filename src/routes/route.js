@@ -15,9 +15,9 @@ router.post("/blogs", validateBlog, validate2, middleware.authenticate, blogCont
 
 router.get("/getAllBlogs", middleware.authenticate, blogController.getAllBlogs)
 
-router.put("/blogs/:blogId", middleware.authenticate, middleware.authorise, blogController.updateBlog)
+router.put("/blogs/:blogId", middleware.authenticate,  blogController.updateBlog)
 
-router.delete("/blogs/:blogId", middleware.authenticate,middleware.authorise, blogController.deleteById)
+router.delete("/blogs/:blogId", middleware.authenticate, blogController.deleteById)
 
 router.delete("/blogsByQueryParams", middleware.authenticate, blogController.deleteBlogsByQuery)
 

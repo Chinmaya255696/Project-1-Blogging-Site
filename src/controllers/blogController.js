@@ -1,6 +1,7 @@
 const blogModel = require("../models/blogModel")
 const mongoose = require('mongoose');
 const authorModel = require("../models/authorModel");
+const jwt = require("jsonwebtoken");
 // const { findById, findByIdAndUpdate } = require("../models/blogModel");
 const isValidObjectId = function (objectId) { return mongoose.Types.ObjectId.isValid(objectId) }
 
@@ -102,7 +103,7 @@ const getAllBlogs = async function (req, res) {
     try {
         let tags = req.query.tags
 
-        if ( tags === "") {
+        if (tags === "") {
             if (!isValidArray(tags)) {
                 return res.status(400).send({ status: false, msg: "tags are empty!" })
             }
@@ -159,26 +160,33 @@ const getAllBlogs = async function (req, res) {
 const updateBlog = async function (req, res) {
 
     try {
+        let data = req.body;
+        if (Object.keys(data).length === 0) { return res.status(400).send({ msg: "Please provide something to update!" }) }
+
         let blogId = req.params.blogId
-        // let authorToken = req.authorId
+        let authorToken = req.authorId
         // if (!blogId) { res.status(400).send({ status: false, msg: "Please input blogId!" }) };
-        if (!isValidObjectId(blogId)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
+        // if (!isValidObjectId(blogId)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
+        if (blogId || blogId === "") {
+
+            if (!isValidObjectId(blogId)) {
+                return res.status(400).send({ status: false, msg: "blogId is invalid!" })
+            }
+        }
 
         let blogvalid = await blogModel.findOne({ _id: blogId, isDeleted: false });
 
         if (!blogvalid) {
-            return res.status(404).send({ status: false, msg: "BLOG NOT FOUND OR BLOG ALREADY DELETED!" });
+            return res.status(404).send({ status: false, msg: "BLOG NOT FOUND!" });
         }
 
-        // if (blogvalid.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
+        if (blogvalid.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
 
-        let data = req.body;
 
-        if (!data.length) { return res.status(400).send({ msg: "Please provide something to update!" }) }
+        // let updateData = { PublishedAt: new Date(), isPublished: true }
+        // updateData.$addToSet={tags:req.body.tags}
 
-        if (!data.tags && !data.subcategory) { return res.status(400).send({ msg: "Please input both tags and subcategory! " }) }
-
-        // if (!data.subcategory) { return res.status(400).send({ msg: "Please input subcategory!" }) }
+        if (!data) { return res.status(400).send({ msg: "Please provide something to update!" }) }
 
         let uptoDateBlog = await blogModel.findOneAndUpdate({ _id: blogId }, data, { new: true });
 
@@ -197,14 +205,15 @@ const deleteById = async function (req, res) {
     try {
         let data = req.params.blogId
         if (!isValidObjectId(data)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
-        // let authorToken = req.authorId
+        let authorToken = req.authorId
         let blogId = await blogModel.findOne({ _id: data, isDeleted: false })
+
         if (!blogId) {
-            return res.status(404).send({ status: false, msg: "BLOG NOT FOUND OR BLOG ALREADY DELETED!" })
+            return res.status(404).send({ status: false, msg: "DATA NOT FOUND OR DATA ALREADY DELETED!" })
         }
         // if (data != blogId) { res.status(400).send({ status: false, msg: "blogId is invalid!" }) };
 
-        // if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access!" }) }
+        if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access!" }) }
 
         let savedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true, deletedAt: new Date() }, { new: true })
 
@@ -301,7 +310,5 @@ module.exports.getAllBlogs = getAllBlogs
 module.exports.updateBlog = updateBlog
 module.exports.deleteById = deleteById
 module.exports.deleteBlogsByQuery = deleteBlogsByQuery
-
-
 
 
