@@ -1,23 +1,64 @@
 const blogModel = require("../models/blogModel")
 const mongoose = require('mongoose');
+const authorModel = require("../models/authorModel");
+// const { findById, findByIdAndUpdate } = require("../models/blogModel");
 const isValidObjectId = function (objectId) { return mongoose.Types.ObjectId.isValid(objectId) }
 
-const objectValue = function (value) {
-    if (typeof value === "undefined" || value === null) return false
-    if (typeof value === "string" && trim().length === 0) return false
-    return true
+// const isValidkey = (value) => {
+//     if (typeof value === "string" && value.trim().length === 0) return false;
+//     if (typeof value === "string") { return true }
+//     else {
+//         return false
+//     }
+// }
+
+const isValidArray = (value) => {
+    if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+            if (value[i].trim().length === 0 || typeof (value[i]) !== "string") { return false }
+        }
+        return true
+    } else { return false }
 }
+
+// const objectValue = function (value) {
+//     if (typeof value === "undefined" || value === null) return false
+//     if (typeof value === "string" && trim().length === 0) return false
+//     return true
+// }
 
 const createBlog = async function (req, res) {
     try {
+        let data2 = req.body.authorId
         let data = req.body
 
-        if (!data.authorId) {
-            return res.status(404).send({ status: false, msg: "authorId is required!" })
-        }
+
+        // if (!data.authorId) {
+        //     return res.status(404).send({ status: false, msg: "authorId is required!" })
+        // }
+        // if (data.authorId || data.authorId === "") {
+
         if (!isValidObjectId(data.authorId)) {
             return res.status(400).send({ status: false, msg: "authorId is invalid!" })
         }
+
+        let validAuthor = await authorModel.findById({ _id: data2 })
+        if (!validAuthor) {
+            return res.status(404).send({ status: false, msg: "authorId not found!" })
+        }
+
+        if (data.tags || data.tags === "") {
+            if (!isValidArray(data.tags)) {
+                return res.status(400).send({ status: false, msg: "tags are empty!" })
+            }
+        }
+
+        if (data.subcategory || data.subcategory === "") {
+            if (!isValidArray(data.subcategory)) {
+                return res.status(400).send({ status: false, msg: "subcategory is empty!" })
+            }
+        }
+
         // else if (!objectValue(data.tags)) {
         //     return res.status(404).send({ status: false, msg: "tags are empty!" })
         // }
@@ -43,40 +84,6 @@ const createBlog = async function (req, res) {
     }
 }
 
-// const createBlog = async function (req, res) {
-
-//     try {
-//         let data = req.body
-
-//         if (data.authorId) {
-//             if (isValidObjectId(data.authorId)) {
-//                 if (objectValue(data.tags)) {
-//                     if (data.category) {
-//                         if (objectValue(data.category)) {
-//                             if (objectValue(data.subcategory)) {
-//                                 if (Object.keys(data).length != 0) {
-//                                     let savedData = await blogModel.create(data)
-//                                     return res.status(201).send({ msg: savedData })
-//                                 }
-//                                 else return res.status(400).send({ msg: "BAD REQUEST" })
-//                             }
-//                             else return res.status(404).send({ status: false, msg: "subcategory is empty!" })
-//                         }
-//                         else return res.status(404).send({ status: false, msg: "category is empty!" })
-//                     }
-//                     else return res.status(404).send({ status: false, msg: "category is required!" })
-//                 }
-//                 else return res.status(404).send({ status: false, msg: "tags are empty!" })
-//             }
-//             else return res.status(400).send({ status: false, msg: "authorId is invalid!" })
-//         }
-//         else res.status(400).send({ status: false, msg: "authorId is required!" })
-//     }
-//     catch (err) {
-//         console.log("This is the error:", err.message)
-//         return res.status(500).send({ msg: "Error", error: err.message })
-//     }
-// }
 
 //<=======why the express validator is not reading the data stored in array of strings...to be precise it is only returning one input i.e ignoring the other inputs....?================================>//
 
@@ -95,8 +102,11 @@ const getAllBlogs = async function (req, res) {
     try {
         let tags = req.query.tags
 
-        if (tags.length === 0) { return res.status(404).send({ status: false, msg: "tags are empty!" }) }
-
+        if ( tags === "") {
+            if (!isValidArray(tags)) {
+                return res.status(400).send({ status: false, msg: "tags are empty!" })
+            }
+        }
         // if ( Object.keys(tags.tags).length === 0) { return res.status(404).send({ status: false, msg: "tags are empty!" }) }
 
         //<==========when we are trying fetch data without tags...its showing error?==========================================>//  
@@ -104,11 +114,16 @@ const getAllBlogs = async function (req, res) {
 
         let authorId = req.query.authorId
 
-        if (!isValidObjectId(authorId)) {
-            return res.status(400).send({ status: false, msg: "authorId is invalid!" })
+        if (!authorId) { res.status(400).send({ status: false, msg: "Please input authorId!" }) }
+
+        if (authorId || authorId === "") {
+
+            if (!isValidObjectId(authorId)) {
+                return res.status(400).send({ status: false, msg: "authorId is invalid!" })
+            }
         }
 
-        if (authorId.length === 0) { res.status(400).send({ status: false, msg: "authorId is empty!" }) }
+        // if (authorId.length === 0) { res.status(400).send({ status: false, msg: "authorId is empty!" }) }
 
         let category = req.query.category
 
@@ -118,7 +133,11 @@ const getAllBlogs = async function (req, res) {
 
         let subcategory = req.query.subcategory
 
-        if (subcategory.length === 0) { return res.status(404).send({ status: false, msg: "subcategory is empty!" }) }
+        if (subcategory === "") {
+            if (!isValidArray(subcategory)) {
+                return res.status(400).send({ status: false, msg: "subcategory is empty!" })
+            }
+        }
 
         let blogsData = []
 
@@ -141,7 +160,7 @@ const updateBlog = async function (req, res) {
 
     try {
         let blogId = req.params.blogId
-        let authorToken = req.authorId
+        // let authorToken = req.authorId
         // if (!blogId) { res.status(400).send({ status: false, msg: "Please input blogId!" }) };
         if (!isValidObjectId(blogId)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
 
@@ -151,7 +170,7 @@ const updateBlog = async function (req, res) {
             return res.status(404).send({ status: false, msg: "BLOG NOT FOUND OR BLOG ALREADY DELETED!" });
         }
 
-        if (blogvalid.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
+        // if (blogvalid.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
 
         let data = req.body;
 
@@ -178,14 +197,14 @@ const deleteById = async function (req, res) {
     try {
         let data = req.params.blogId
         if (!isValidObjectId(data)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
-        let authorToken = req.authorId
+        // let authorToken = req.authorId
         let blogId = await blogModel.findOne({ _id: data, isDeleted: false })
         if (!blogId) {
             return res.status(404).send({ status: false, msg: "BLOG NOT FOUND OR BLOG ALREADY DELETED!" })
         }
         // if (data != blogId) { res.status(400).send({ status: false, msg: "blogId is invalid!" }) };
 
-        if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access!" }) }
+        // if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access!" }) }
 
         let savedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true, deletedAt: new Date() }, { new: true })
 
@@ -199,54 +218,77 @@ const deleteById = async function (req, res) {
 
 const deleteBlogsByQuery = async function (req, res) {
     try {
-        let data = req.query
-        let authorToken = req.authorId
-        const savedData = await blogModel.updateMany(
-            { $and: [data, { isDeleted: false }] },
-            { $set: { isDeleted: true, deletedAt: new Date() } },
-            { new: true }
-        )
-        if (!data) {
-            return res.status(400).send({ status: false, msg: "BAD REQUEST!" })
+        let { authorId, tags, subcategory, category, isPublished } = req.query
+        if (isPublished || isPublished === "") {
+
+            if (isPublished === "false") { isPublished = false }
+            else return res.status(400).send({ status: false, msg: "isPublished should be false!" })
+        }
+        if (authorId || authorId === "") {
+
+            if (!isValidObjectId(authorId)) {
+                return res.status(400).send({ status: false, msg: "authorId is invalid!" })
+            }
         }
 
-        if (!isValidObjectId(data.authorId)) {
-            return res.status(400).send({ status: false, msg: "authorId is invalid!" })
+        let token = req.headers["x-api-key"];
+        let authorToken = jwt.verify(token, "group19-project1");
+        const findData = await blogModel.find({ isDeleted: false, isPublished: false }, { authorId, tags, subcategory, category, isPublished })
+        if (objectValue.keys(findData) === 0) return res.status(404).send({ status: false, msg: "no data to update!" })
+        let allDeletedData = []
+        for (i = 0; i < findData.length; i++) {
+            if (authorToken.authorId === findData[i].authorId) {
+                deletedData = await blogModel.findByIdAndUpdate({ _id: findData[i]._id }, { $set: { isDeleted: true, deletedAt: new Date() } })
+                allDeletedData.push(deletedData)
+            }
         }
-
-        if (data.authorId.length === 0) {
-            res.status(400).send({ status: false, msg: "authorId is empty!" })
-        }
-
-        if (!data.category) {
-            return res.status(404).send({ status: false, msg: "category is required" })
-        }
-
-        // if (data.category.length === 0) {
-        //     res.status(400).send({ status: false, msg: "category is empty!" })
+        // const savedData = await blogModel.updateMany(
+        //     { $and: [data, { isDeleted: false }] },
+        //     { $set: { isDeleted: true, deletedAt: new Date() } },
+        //     { new: true }
+        // )
+        // if (!data) {
+        //     return res.status(400).send({ status: false, msg: "BAD REQUEST!" })
         // }
 
-        if (data.tags.length === 0) {
-            res.status(400).send({ status: false, msg: "tags is empty!" })
-        }
+        // if (!isValidObjectId(data.authorId)) {
+        //     return res.status(400).send({ status: false, msg: "authorId is invalid!" })
+        // }
 
-        if (data.subcategory.length === 0) {
-            res.status(400).send({ status: false, msg: "subcategory is empty!" })
-        }
+        // if (data.authorId.length === 0) {
+        //     res.status(400).send({ status: false, msg: "authorId is empty!" })
+        // }
+
+        // if (!data.category) {
+        //     return res.status(404).send({ status: false, msg: "category is required" })
+        // }
+
+        // // if (data.category.length === 0) {
+        // //     res.status(400).send({ status: false, msg: "category is empty!" })
+        // // }
+
+        // if (data.tags.length === 0) {
+        //     res.status(400).send({ status: false, msg: "tags is empty!" })
+        // }
+
+        // if (data.subcategory.length === 0) {
+        //     res.status(400).send({ status: false, msg: "subcategory is empty!" })
+        // }
 
         // if (data.isPublished.length === 0) {
         //     res.status(400).send({ status: false, msg: "isPublished is empty!" })
         // }
 
-        if (savedData.modifiedCount === 0) {
+        if (allDeletedData.length === 0) {
             return res.status(404).send({ status: false, msg: "NO DATA TO UPDATE!" })
         }
+        else res.status(200).send()
 
-        if (data.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
+        // if (data.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }
 
-        else {
-            return res.status(200).send({ status: true, data: savedData })
-        }
+        // else {
+        //     return res.status(200).send({ status: true, data: savedData })
+        // }
 
     } catch (error) {
         return res.status(500).send({ msg: "Error", error: error.message })
