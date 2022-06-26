@@ -100,7 +100,7 @@ const getAllBlogs = async function (req, res) {
         // if ( Object.keys(tags.tags).length === 0) { return res.status(404).send({ status: false, msg: "tags are empty!" }) }
 
         //<==========when we are trying fetch data without tags...its showing error?==========================================>//  
-        //<======================why .length is making the presence compulsory ?================================================>//
+        //<======================why .length is making the presence of the key's value compulsory ?========================================>//
 
         let authorId = req.query.authorId
 
@@ -187,7 +187,7 @@ const deleteById = async function (req, res) {
 
         if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access!" }) }
 
-        let savedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true }, { new: true })
+        let savedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true, deletedAt: new Date() }, { new: true })
 
         return res.status(200).send({ status: true, data: savedData })
     }
@@ -207,11 +207,11 @@ const deleteBlogsByQuery = async function (req, res) {
             { new: true }
         )
         if (!data) {
-            return res.status(400).send({ status: false, msg: "BAD REQUEST" })
+            return res.status(400).send({ status: false, msg: "BAD REQUEST!" })
         }
 
-        if (!data.authorId) {
-            return res.status(404).send({ status: false, msg: "authorId is required" })
+        if (!isValidObjectId(data.authorId)) {
+            return res.status(400).send({ status: false, msg: "authorId is invalid!" })
         }
 
         if (data.authorId.length === 0) {
@@ -222,9 +222,9 @@ const deleteBlogsByQuery = async function (req, res) {
             return res.status(404).send({ status: false, msg: "category is required" })
         }
 
-        if (data.category.length === 0) {
-            res.status(400).send({ status: false, msg: "category is empty!" })
-        }
+        // if (data.category.length === 0) {
+        //     res.status(400).send({ status: false, msg: "category is empty!" })
+        // }
 
         if (data.tags.length === 0) {
             res.status(400).send({ status: false, msg: "tags is empty!" })
@@ -234,12 +234,12 @@ const deleteBlogsByQuery = async function (req, res) {
             res.status(400).send({ status: false, msg: "subcategory is empty!" })
         }
 
-        if (data.isPublished.length === 0) {
-            res.status(400).send({ status: false, msg: "isPublished is empty!" })
-        }
+        // if (data.isPublished.length === 0) {
+        //     res.status(400).send({ status: false, msg: "isPublished is empty!" })
+        // }
 
         if (savedData.modifiedCount === 0) {
-            return res.status(404).send({ status: false, msg: "DATA NOT FOUND" })
+            return res.status(404).send({ status: false, msg: "NO DATA TO UPDATE!" })
         }
 
         if (data.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access" }) }

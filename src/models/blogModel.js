@@ -36,10 +36,10 @@ const blogSchema = new mongoose.Schema({
     //     type: String,
     //     default: null
     // },
-    // deletedAt: {
-    //     type: String,
-    //     default: null
-    // },
+    deletedAt: {
+        type: String,
+        default: null
+    },
     isDeleted: {
         type: Boolean,
         default: false,
@@ -49,10 +49,10 @@ const blogSchema = new mongoose.Schema({
         //     }
         // }
     },
-    // publishedAt: {
-    //     type: String,
-    //     default: null
-    // },
+    publishedAt: {
+        type: String,
+        default: null
+    },
     isPublished: {
         type: Boolean,
         default: false
