@@ -5,7 +5,6 @@ const blogController = require("../controllers/blogController")
 const { validateAuthor, validate } = require("../middleware/validateAuthor")
 const { validateBlog, validate2 } = require("../middleware/validateBlog")
 const middleware = require("../middleware/auth");
-// const {check}  = require("express-validator")
 
 router.post("/authors", validateAuthor, validate, authorController.createAuthor)
 
@@ -15,7 +14,7 @@ router.post("/blogs", validateBlog, validate2, middleware.authenticate, blogCont
 
 router.get("/getAllBlogs", middleware.authenticate, blogController.getAllBlogs)
 
-router.put("/blogs/:blogId", middleware.authenticate,  blogController.updateBlog)
+router.put("/blogs/:blogId", middleware.authenticate, middleware.authorise, blogController.updateBlog)
 
 router.delete("/blogs/:blogId", middleware.authenticate, blogController.deleteById)
 
