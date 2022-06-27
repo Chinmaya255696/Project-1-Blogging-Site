@@ -63,6 +63,8 @@ const createBlog = async function (req, res) {
 
 const getAllBlogs = async function (req, res) {
     try {
+        let body = req.query
+        if(!body) return res.status(400).send({status: false, msg:"BAD REQUEST!"})
         let tags = req.query.tags
 
         if (tags || tags === "") {
@@ -72,8 +74,6 @@ const getAllBlogs = async function (req, res) {
         }
 
         let authorId = req.query.authorId
-
-        if (!authorId) { res.status(400).send({ status: false, msg: "Please input authorId!" }) }
 
         if (authorId || authorId === "") {
 
@@ -85,7 +85,11 @@ const getAllBlogs = async function (req, res) {
 
         let category = req.query.category
 
-        if (!category) { res.status(400).send({ status: false, msg: "Please input category!" }) }
+        if (category || category === "") {
+            if (!objectValue(title)) {
+                return res.status(400).send({ status: false, msg: "category is empty!" })
+            }
+        }
 
         let subcategory = req.query.subcategory
 
