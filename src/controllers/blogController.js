@@ -63,17 +63,13 @@ const createBlog = async function (req, res) {
 
 const getAllBlogs = async function (req, res) {
     try {
-        let tags = req.query.tags
+        let {tags,category,authorId,subcategory} = req.query
 
         if (tags === "") {
             if (!isValidArray(tags)) {
                 return res.status(400).send({ status: false, msg: "tags are empty!" })
             }
         }
-
-        let authorId = req.query.authorId
-
-        //if (!authorId) { res.status(400).send({ status: false, msg: "Please input authorId!" }) }
 
         if (authorId || authorId === "") {
 
@@ -83,11 +79,8 @@ const getAllBlogs = async function (req, res) {
         }
 
 
-        let category = req.query.category
-
-        //  if (!category) { res.status(400).send({ status: false, msg: "Please input category!" }) }
-
-        let subcategory = req.query.subcategory
+         if (!objectValue(category)) { res.status(400).send({ status: false, msg: "Please input category!" }) }
+       
 
         if (subcategory || subcategory === "") {
             if (!isValidArray(subcategory)) {
