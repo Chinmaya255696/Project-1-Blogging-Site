@@ -65,6 +65,8 @@ const getAllBlogs = async function (req, res) {
     try {
         let {tags,category,authorId,subcategory} = req.query
 
+        if(Object.keys(req.body).length === 0)  return res.status(400).send({ status: false, msg: "please input something!"}) 
+
         if (tags === "") {
             if (!isValidArray(tags)) {
                 return res.status(400).send({ status: false, msg: "tags are empty!" })
@@ -165,18 +167,16 @@ const deleteById = async function (req, res) {
     try {
         let data = req.params.blogId
         if (!isValidObjectId(data)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
-        let authorToken = req.authorId
+       
         let blogId = await blogModel.findOne({ _id: data, isDeleted: false })
 
         if (!blogId) {
             return res.status(404).send({ status: false, msg: "DATA NOT FOUND OR DATA ALREADY DELETED!" })
         }
 
-        if (blogId.authorId.toString() !== authorToken) { return res.status(401).send({ status: false, message: "Unauthorised access!" }) }
-
         let savedData = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true, deletedAt: new Date() }, { new: true })
 
-        return res.status(200).send({ status: true, data: savedData })
+        return res.status(200).send()
     }
     catch (error) {
         return res.status(500).send({ msg: "Error", error: error.message })
@@ -215,7 +215,7 @@ const deleteBlogsByQuery = async function (req, res) {
         }
 
 
-        if (allDeletedData.length == 0) {
+        if (allDeletedData.length === 0) {
             return res.status(404).send({ status: false, msg: "NO DATA TO UPDATE!" })
         }
         else res.status(200).send()
