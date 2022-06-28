@@ -12,7 +12,7 @@ router.post("/login", authorController.loginAuthor)
 
 router.post("/blogs", validateBlog, validate2, middleware.authenticate, blogController.createBlog)
 
-router.get("/getAllBlogs", middleware.authenticate, blogController.getAllBlogs)
+router.get("/blogs", middleware.authenticate, blogController.getAllBlogs)
 
 router.put("/blogs/:blogId", middleware.authenticate, middleware.authorise, blogController.updateBlog)
 
