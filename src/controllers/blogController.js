@@ -65,11 +65,7 @@ const getAllBlogs = async function (req, res) {
     try {
         let { tags, category, authorId, subcategory } = req.query
 
-<<<<<<< HEAD
         if (Object.keys(req.body).length === 0) return res.status(400).send({ status: false, msg: "please input something!" })
-=======
-        if (Object.keys(req.query).length === 0) return res.status(400).send({ status: false, msg: "please input something!" })
->>>>>>> 74f9b2704901ddc4e03b334b61d8daa14464d904
 
         if (tags === "") {
             if (!isValidArray(tags)) {
@@ -84,19 +80,11 @@ const getAllBlogs = async function (req, res) {
             }
         }
 
-        if (category === "") {
-            if (!objectValue(category)) {
-                res.status(400).send({ status: false, msg: "Please input category!" })
-            }
-        }
 
-<<<<<<< HEAD
         if (!objectValue(category)) { res.status(400).send({ status: false, msg: "Please input category!" }) }
 
-=======
->>>>>>> 74f9b2704901ddc4e03b334b61d8daa14464d904
 
-        if (subcategory === "") {
+        if (subcategory || subcategory === "") {
             if (!isValidArray(subcategory)) {
                 return res.status(400).send({ status: false, msg: "subcategory is empty!" })
             }
