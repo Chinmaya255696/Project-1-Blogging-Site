@@ -63,9 +63,9 @@ const createBlog = async function (req, res) {
 
 const getAllBlogs = async function (req, res) {
     try {
-        let {tags,category,authorId,subcategory} = req.query
+        let { tags, category, authorId, subcategory } = req.query
 
-        if(Object.keys(req.body).length === 0)  return res.status(400).send({ status: false, msg: "please input something!"}) 
+        if (Object.keys(req.body).length === 0) return res.status(400).send({ status: false, msg: "please input something!" })
 
         if (tags === "") {
             if (!isValidArray(tags)) {
@@ -81,8 +81,8 @@ const getAllBlogs = async function (req, res) {
         }
 
 
-         if (!objectValue(category)) { res.status(400).send({ status: false, msg: "Please input category!" }) }
-       
+        if (!objectValue(category)) { res.status(400).send({ status: false, msg: "Please input category!" }) }
+
 
         if (subcategory || subcategory === "") {
             if (!isValidArray(subcategory)) {
@@ -167,7 +167,7 @@ const deleteById = async function (req, res) {
     try {
         let data = req.params.blogId
         if (!isValidObjectId(data)) return res.status(400).send({ status: false, msg: "blogId is invalid!" })
-       
+
         let blogId = await blogModel.findOne({ _id: data, isDeleted: false })
 
         if (!blogId) {
