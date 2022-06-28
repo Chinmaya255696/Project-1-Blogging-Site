@@ -37,6 +37,8 @@ const loginAuthor = async function (req, res) {
                 authorId: author._id.toString(),
                 group: "ninteen",
                 project: "BlogMiniSite",
+                iat: Math.floor(Date.now() / 1000),
+                exp: Math.floor(Date.now() / 1000) + 10*60*60
             },
             "group19-project1"
         )
